@@ -1,0 +1,12 @@
+<resources>
+
+    <!-- Base application theme. -->
+    <style name="AppTheme" parent="Theme.AppCompat.Light.NoActionBar">
+        <!-- true api19，表示状态栏透明，并且会使得状态栏悬浮在activity之上(activity布局会扩展到状态栏底部) -->
+        <item name="android:windowTranslucentStatus">true</item>
+        <!-- 表示导航栏半透明，并且会使得状态栏和导航栏都悬浮在activity之上 -->
+        <item name="android:windowTranslucentNavigation">true</item>
+        <item name="android:statusBarColor">@android:color/transparent</item>
+        <item name="android:windowDrawsSystemBarBackgrounds">@android:color/transparent</item>
+    </style>
+</resources>
