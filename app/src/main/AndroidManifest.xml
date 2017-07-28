@@ -48,6 +48,15 @@
         </activity>
         <activity android:name="ui.activity.BusinessActivity"
             android:theme="@style/ActivityTheme"/>
+        <activity android:name="ui.activity.CartActivity"
+            android:theme="@style/ActivityTheme"
+            />
+        <activity android:name="ui.activity.LoginActivity"
+
+            android:theme="@style/ActivityTheme"/>
+        <activity android:name="ui.activity.SettleCenterActicity"
+            android:theme="@style/ActivityTheme"
+            />
     </application>
 
 </manifest>

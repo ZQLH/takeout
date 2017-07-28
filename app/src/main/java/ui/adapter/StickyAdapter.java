@@ -29,6 +29,7 @@ import se.emilsjolander.stickylistheaders.StickyListHeadersAdapter;
 import ui.ShoppingCartManager;
 import ui.fragment.GoodsFragment;
 import utils.AnimationUtils;
+import utils.NumberFormatUtils;
 import utils.UiUtils;
 
 /**
@@ -46,8 +47,8 @@ public class StickyAdapter extends BaseAdapter implements StickyListHeadersAdapt
     GoodsFragment fragment;
     public List<GoodsInfo> list = new ArrayList<>();
     private FrameLayout container;
-    private TextView count;
-
+    TextView count=MyApplication.count;
+    ShoppingCartManager instance=ShoppingCartManager.getInstance();
 
     public StickyAdapter(GoodsFragment fragment,Context context) {
         mContext = context;
@@ -93,41 +94,32 @@ public class StickyAdapter extends BaseAdapter implements StickyListHeadersAdapt
 
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
+        GoodsInfo goodsInfo = data.get(position);
         final ViewHolder holder;
         if (convertView == null) {
             //初始化部分
-            holder = new ViewHolder();
             convertView = inflater.inflate(R.layout.item_goods, parent, false);
-            holder.iv_icon = (ImageView) convertView.findViewById(R.id.iv_icon);
-            holder.tv_name = (TextView) convertView.findViewById(R.id.tv_name);
-            holder.tv_detail = (TextView) convertView.findViewById(R.id.tv_zucheng);
-            holder.tv_seller_month = (TextView) convertView.findViewById(R.id.tv_yueshaoshounum);
-            holder.tv_newprice = (TextView) convertView.findViewById(R.id.tv_newprice);
-            holder.tv_oldprice = (TextView) convertView.findViewById(R.id.tv_oldprice);
-            holder.iv_min = (ImageView) convertView.findViewById(R.id.ib_minus);
-            holder.tv_num = (TextView) convertView.findViewById(R.id.tv_money);
-            holder.iv_ade = (ImageView) convertView.findViewById(R.id.ib_add);
-            holder.tvCount = (TextView) convertView.findViewById(R.id.tv_money);
+            holder = new ViewHolder((convertView));
+            holder.setData();
             holder.headId = data.get(position).headId;
-            //右边集合显示的条目组所属于左边集合中的哪一个
             holder.headIndex = data.get(position).headIndex;
             convertView.setTag(holder);
         } else {
             holder = (ViewHolder) convertView.getTag();
         }
-        //赋值操作部分
-        GoodsInfo goodsInfo = data.get(position);
-        int count = goodsInfo.count;
-        if (count <= 0) {
+
+       int num=instance.getGoodsIdNum(goodsInfo.id);
+        if (num>0){
+            holder.iv_min.setVisibility(View.VISIBLE);
+            holder.tvCount.setVisibility(View.VISIBLE);
+            holder.tvCount.setText(num + "");
+            goodsInfo.count=num;
+        }else{
             holder.iv_min.setVisibility(View.GONE);
             holder.tvCount.setVisibility(View.GONE);
             holder.tvCount.setText("0");
-        } else {
-            holder.iv_min.setVisibility(View.VISIBLE);
-            holder.tvCount.setVisibility(View.VISIBLE);
-            holder.tvCount.setText(count + "");
+            goodsInfo.count=0;
         }
-
 
         ibMinus = (ImageButton) holder.iv_min;
         holder.iv_ade.setTag(position);
@@ -146,11 +138,9 @@ public class StickyAdapter extends BaseAdapter implements StickyListHeadersAdapt
             @Override
             public void onClick(View v) {
                 int position = (int) v.getTag();
-                minusHander(holder, data.get(position));
+                minusHander(v,holder, data.get(position));
             }
         });
-
-
         Picasso.with(mContext).load(goodsInfo.icon).into(holder.iv_icon);
         holder.tv_name.setText(goodsInfo.name);
         holder.tv_detail.setText(goodsInfo.form);
@@ -184,7 +174,7 @@ public class StickyAdapter extends BaseAdapter implements StickyListHeadersAdapt
     }
 
     private void addHandler(View view, ViewHolder holder, GoodsInfo goodsInfo) {
-        Integer num = ShoppingCartManager.getInstance().addGoods(goodsInfo);
+        Integer num = instance.addGoods(goodsInfo);
         goodsInfo.count = num;
         if (num == 1) {
             holder.iv_min.setVisibility(View.VISIBLE);
@@ -219,8 +209,6 @@ public class StickyAdapter extends BaseAdapter implements StickyListHeadersAdapt
             container = (FrameLayout) UiUtils.getContainder(view,R.id.seller_detail_container);
         }
         container.findViewById(R.id.cart).getLocationOnScreen(targetLocation);
-//        location[1]-=UiUtils.STATUE_BAR_HEIGHT;
-//        targetLocation[1]-=UiUtils.STATUE_BAR_HEIGHT;
         final ImageView iv=getImageView(location,view);
         container.addView(iv);
         Animation animation= utils.AnimationUtils.getAddAnimation(targetLocation,location);
@@ -253,30 +241,41 @@ public class StickyAdapter extends BaseAdapter implements StickyListHeadersAdapt
         return imageView;
     }
 
-    private void minusHander(ViewHolder viewHolder, GoodsInfo goodsInfo) {
-        int num;
-        if (Integer.parseInt(viewHolder.tvCount.getText().toString())>1){
-            num=Integer.parseInt(viewHolder.tvCount.getText().toString());
-            num--;
-            goodsInfo.count = num;
-            viewHolder.tvCount.setText(num+"");
-            Integer totalNum = ShoppingCartManager.getInstance().getTotalNum();
-            count.setText(totalNum.toString());
+    private void minusHander(View view,ViewHolder viewHolder, GoodsInfo goodsInfo) {
+        int num=instance.minusGoods(goodsInfo);
 
-        }else{
-            num=0;
+        if (num>=0){
             goodsInfo.count = num;
             viewHolder.tvCount.setText(num+"");
+
             Integer totalNum = ShoppingCartManager.getInstance().getTotalNum();
-            if (totalNum>0)
-            {
-                count.setText(totalNum.toString());
-            }else{
-                count.setVisibility(View.INVISIBLE);
+            if (container ==null){
+                container = (FrameLayout) UiUtils.getContainder(view,R.id.seller_detail_container);
             }
-            viewHolder.iv_min.setVisibility(View.INVISIBLE);
-            viewHolder.tvCount.setVisibility(View.INVISIBLE);
+            if (count == null) {
+                count = (TextView) container.findViewById(R.id.fragment_goods_tv_count);
+                count.setText(totalNum.toString());
+            }
+            count.setVisibility(View.VISIBLE);
+            count.setText(totalNum.toString());
+            if (totalNum==0){
+                viewHolder.iv_min.setVisibility(View.INVISIBLE);
+                viewHolder.tvCount.setVisibility(View.INVISIBLE);
+                count.setVisibility(View.INVISIBLE);
+            }else if(num==0){
+                viewHolder.iv_min.setVisibility(View.INVISIBLE);
+                viewHolder.tvCount.setVisibility(View.INVISIBLE);
+            }
         }
+//        else{
+//            goodsInfo.count = num;
+//
+//            viewHolder.tvCount.setText(num+"");
+//            Integer totalNum = ShoppingCartManager.getInstance().getTotalNum();
+//            if (totalNum<=0){
+//
+//            }
+//        }
 
     }
 
@@ -285,17 +284,35 @@ public class StickyAdapter extends BaseAdapter implements StickyListHeadersAdapt
     }
 
     static class ViewHolder {
-        ImageView iv_icon;
-        TextView tv_name;
-        TextView tv_detail;
-        TextView tv_seller_month;
-        TextView tv_newprice;
-        TextView tv_oldprice;
-        ImageView iv_min;
-        TextView tv_num;
-        ImageView iv_ade;
-        int headId;
-        int headIndex;
-        TextView tvCount;
+        ImageView   iv_icon;
+        TextView    tv_name;
+        TextView    tv_detail;
+        TextView    tv_seller_month;
+        TextView    tv_newprice;
+        TextView    tv_oldprice;
+        ImageView   iv_min;
+        TextView    tv_num;
+        ImageView   iv_ade;
+        int         headId;
+        int         headIndex;
+        TextView    tvCount;
+        View view;
+        public ViewHolder(View view) {
+            this.view=view;
+
+        }
+        public void setData(){
+            this.iv_icon = (ImageView) view.findViewById(R.id.iv_icon);
+            this.tv_name = (TextView) view.findViewById(R.id.tv_name);
+            this.tv_detail = (TextView) view.findViewById(R.id.tv_zucheng);
+            this.tv_seller_month = (TextView) view.findViewById(R.id.tv_yueshaoshounum);
+            this.tv_newprice = (TextView) view.findViewById(R.id.tv_newprice);
+            this.tv_oldprice = (TextView) view.findViewById(R.id.tv_oldprice);
+            this.iv_min = (ImageView) view.findViewById(R.id.ib_minus);
+            this.tv_num = (TextView) view.findViewById(R.id.tv_money);
+            this.iv_ade = (ImageView) view.findViewById(R.id.ib_add);
+            this.tvCount = (TextView) view.findViewById(R.id.tv_money);
+
+        }
     }
 }

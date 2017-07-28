@@ -1,4 +1,4 @@
-package ui.activity;
+package ui.adapter;
 
 import android.content.Context;
 import android.graphics.Color;
