@@ -156,6 +156,9 @@ public class StickyAdapter extends BaseAdapter implements StickyListHeadersAdapt
     }
 
     public List<GoodsInfo> getGoodsInfo(List<GoodsTypeInfo> data_above) {
+        if (data!=null){
+            data.clear();
+        }
         for (int i = 0; i < data_above.size(); i++) {
             list = data_above.get(i).list;
             for (int j = 0; j < list.size(); j++) {
