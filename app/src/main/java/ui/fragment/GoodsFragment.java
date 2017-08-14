@@ -124,7 +124,6 @@ public class GoodsFragment extends BaseFragment implements AdapterView.OnItemCli
         adapter.setSelectedPosition(position);
         GoodsTypeInfo head = adapter.data.get(position);
         shl.setSelection(head.groupFirstIndex);
-        shl.smoothScrollToPosition(head.groupFirstIndex);
         isScroll=false;
 
     }
@@ -146,7 +145,6 @@ public class GoodsFragment extends BaseFragment implements AdapterView.OnItemCli
                 adapter.setSelectedPosition(data.headIndex);
                 listView.smoothScrollToPosition(data.headIndex);
         }
-
         }
     }
 
