@@ -1,8 +1,16 @@
 apply plugin: 'com.android.application'
 apply plugin: 'com.neenbedankt.android-apt'
 android {
+    signingConfigs {
+        myKeyStore {
+            keyAlias 'myKeyStore'
+            keyPassword '123456'
+            storeFile file('E:/myKeyStore.jks')
+            storePassword '123456'
+        }
+    }
     compileSdkVersion 25
-    buildToolsVersion "26.0.0"
+    buildToolsVersion "25.0.0"
     defaultConfig {
         applicationId "com.example.lala.heimawaimaizhunbei"
         minSdkVersion 21
@@ -16,6 +24,10 @@ android {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
+        debug {
+            minifyEnabled false
+            signingConfig signingConfigs.myKeyStore
+        }
     }
 //配置aar必须要告诉系统本地仓库在哪里
     repositories {
@@ -23,7 +35,6 @@ android {
             dirs 'libs' //就是你放aar的目录地址
         }
     }
-
     dependencies {
         compile fileTree(dir: 'libs', include: ['*.jar'])
         androidTestCompile('com.android.support.test.espresso:espresso-core:2.2.2', {
@@ -51,14 +62,26 @@ android {
         compile 'com.nineoldandroids:library:2.4.0'
         compile 'com.daimajia.slider:library:1.1.5@aar'
         //短信验证
-        compile name: 'SMSSDK-2.1.1', ext: 'aar'
+        compile name: 'SMSSDK-3.0.0', ext: 'aar'
         compile files('src/main/jnilibs/jpush-android-2.1.9.jar')
         compile files('libs/AMap_2DMap_V2.9.0_20160525.jar')
         //粘性控件
         compile 'se.emilsjolander:stickylistheaders:2.7.0'
+        //友盟依赖
+        compile 'com.umeng.analytics:analytics:latest.integration'
 
     }
 }
+//支付宝依赖
 dependencies {
     compile 'com.android.support:design:25.+'
+    compile files('libs/alipaysdk.jar')
+    compile files('libs/alipaysecsdk.jar')
+    compile files('libs/alipayutdid.jar')
+    compile files('src/main/jnilibs/jpush-android-3.0.8.jar')
+    compile files('libs/jpush-android-3.0.8.jar')
+    compile files('libs/jcore-android-1.1.6.jar')
+    compile files('libs/Amap_2DMap_V5.2.0_20170627.jar')
+    compile files('libs/AMap_Location_V3.5.0_20170731.jar')
+    compile files('libs/AMap_Search_V5.2.1_20170630.jar')
 }

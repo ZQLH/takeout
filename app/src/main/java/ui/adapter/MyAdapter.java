@@ -61,7 +61,9 @@ public class MyAdapter extends BaseAdapter {
             holder= (ViewHolder) convertView.getTag();
         }
         holder.itemView.setText(data.get(position).name);
-        if (position==selectedHeadIndex){  holder.itemView.setBackgroundColor(Color.WHITE);
+        if (position==selectedHeadIndex)
+        {
+            holder.itemView.setBackgroundColor(Color.WHITE);
         }else {
             holder.itemView.setBackgroundColor(android.graphics.Color.parseColor("#b1ded5d5"));
         }
@@ -76,14 +78,15 @@ public class MyAdapter extends BaseAdapter {
     }
 
     public void setSelectedPosition(int position) {
+        if (position==this.selectedHeadIndex){
+            return;
+        }
         selectedHeadIndex=position;
         notifyDataSetChanged();
     }
 
     class ViewHolder{
         TextView itemView;
-
-
     }
 
 }

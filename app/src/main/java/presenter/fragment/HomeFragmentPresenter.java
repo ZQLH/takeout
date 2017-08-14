@@ -9,6 +9,7 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 import ui.fragment.HomeFragment;
+import ui.view.IView;
 import utils.ErrorInfo;
 
 /**
@@ -16,9 +17,9 @@ import utils.ErrorInfo;
  */
 
 public class HomeFragmentPresenter extends BasePresenter {
-    private HomeFragment fragment;
+    private IView fragment;
 
-    public HomeFragmentPresenter(HomeFragment fragment) {
+    public HomeFragmentPresenter(IView fragment) {
         this.fragment = fragment;
     }
     /**
@@ -48,6 +49,6 @@ public class HomeFragmentPresenter extends BasePresenter {
 
         HomeInfo info=gson.fromJson(data,HomeInfo.class);
         //此时设配器就得到了HomeInfo数据，即
-        fragment.getAdapter().setData(info);
+        fragment.success(info);
     }
 }

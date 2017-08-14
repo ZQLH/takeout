@@ -1,10 +1,9 @@
 package ui.activity;
 
-import android.app.Activity;
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentManager;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.view.ViewGroup;
@@ -18,8 +17,9 @@ import java.util.List;
 
 import butterknife.ButterKnife;
 import butterknife.InjectView;
+import cn.jpush.android.api.JPushInterface;
 import ui.fragment.HomeFragment;
-import ui.fragment.InvestFragment;
+import ui.fragment.OrderFragment;
 import ui.fragment.MeFragment;
 import ui.fragment.MoreFragment;
 
@@ -37,12 +37,13 @@ public class MainActivity extends AppCompatActivity {
     List<Fragment> fragments = new ArrayList<>();
 
 
+
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        getWindow().getDecorView().setSystemUiVisibility(View.GONE);
         setContentView(R.layout.activity_main);
         ButterKnife.inject(this);
+        JPushInterface.init(getApplicationContext());
         //2创建fragment保存到集合中
         init();
         setListener();
@@ -57,10 +58,10 @@ public class MainActivity extends AppCompatActivity {
 
     private void init() {
         fragments.add(new HomeFragment());
-        fragments.add(new InvestFragment());
+        fragments.add(new OrderFragment());
         fragments.add(new MeFragment());
         fragments.add(new MoreFragment());
-       swither.onClick(switcherContainer.getChildAt(0));
+         swither.onClick(switcherContainer.getChildAt(0));
     }
 
     private  View.OnClickListener swither=new View.OnClickListener(){
@@ -92,6 +93,29 @@ public class MainActivity extends AppCompatActivity {
                 setEnable(((ViewGroup) view).getChildAt(i),enable);
             }
         }
+    }
 
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        JPushInterface.onPause(this);
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        JPushInterface.onResume(this);
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        fragments.get(0).onActivityResult(requestCode,resultCode,data);
     }
 }

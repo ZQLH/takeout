@@ -1,7 +1,7 @@
 package ui.adapter;
 
 import android.content.Context;
-import android.support.v7.widget.RecyclerView;
+import android.graphics.Paint;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -14,19 +14,17 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.example.lala.heimawaimaizhunbei.R;
-import com.j256.ormlite.stmt.query.In;
 import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 
-import butterknife.InjectView;
 import model.net.bean.GoodsInfo;
 import model.net.bean.GoodsTypeInfo;
-import presenter.base.MyApplication;
+import model.MyApplication;
 import se.emilsjolander.stickylistheaders.StickyListHeadersAdapter;
 import ui.ShoppingCartManager;
+import ui.activity.BusinessActivity;
 import ui.fragment.GoodsFragment;
 import utils.AnimationUtils;
 import utils.NumberFormatUtils;
@@ -39,9 +37,7 @@ import utils.UiUtils;
 public class StickyAdapter extends BaseAdapter implements StickyListHeadersAdapter {
     List<GoodsTypeInfo> data_above = new ArrayList<>();
     public List<GoodsInfo> data = new ArrayList<>();
-    TextView tvCount;
     ImageButton ibMinus;
-    ImageButton ibAdd;
     private LayoutInflater inflater;
     Context mContext;
     GoodsFragment fragment;
@@ -130,6 +126,7 @@ public class StickyAdapter extends BaseAdapter implements StickyListHeadersAdapt
             @Override
             public void onClick(View v) {
                 int position = (int) v.getTag();
+                holder.iv_ade.setClickable(false);
 
                 addHandler(v, holder, data.get(position));
             }
@@ -141,12 +138,13 @@ public class StickyAdapter extends BaseAdapter implements StickyListHeadersAdapt
                 minusHander(v,holder, data.get(position));
             }
         });
-        Picasso.with(mContext).load(goodsInfo.icon).into(holder.iv_icon);
+        Picasso.with(mContext).load(goodsInfo.icon.replace("172.16.0.116","47.94.91.212")).into(holder.iv_icon);
         holder.tv_name.setText(goodsInfo.name);
         holder.tv_detail.setText(goodsInfo.form);
         holder.tv_seller_month.setText(String.valueOf(goodsInfo.monthSaleNum));
-        holder.tv_newprice.setText("$" + (int) goodsInfo.newPrice);
-        holder.tv_oldprice.setText(String.valueOf(goodsInfo.oldPrice));
+        holder.tv_newprice.setText(NumberFormatUtils.formatDigits(goodsInfo.newPrice*100/100.0));
+        holder.tv_oldprice.setText(NumberFormatUtils.formatDigits(goodsInfo.oldPrice*100/100.0));
+        holder.tv_oldprice.getPaint().setFlags(Paint.STRIKE_THRU_TEXT_FLAG);
         return convertView;
     }
 
@@ -165,6 +163,7 @@ public class StickyAdapter extends BaseAdapter implements StickyListHeadersAdapt
                 GoodsInfo goodsInfo = list.get(j);
                 goodsInfo.headId = data_above.get(i).id;
                 goodsInfo.headIndex = i;
+                goodsInfo.sellerId= BusinessActivity.sellerId;
                 if (j == 0) {
                     //显示标题对应的下标，即在集合1中存储了集合2的小标题的下标信息，方便联动
                     data_above.get(i).groupFirstIndex = data.size();
@@ -189,7 +188,8 @@ public class StickyAdapter extends BaseAdapter implements StickyListHeadersAdapt
         } else {
             holder.tvCount.setText(num + "");
         }
-        flyToShoppingCart(view);
+        flyToShoppingCart(view,holder);
+
         count = null;
         if (count == null) {
             count = (TextView) container.findViewById(R.id.fragment_goods_tv_count);
@@ -202,7 +202,7 @@ public class StickyAdapter extends BaseAdapter implements StickyListHeadersAdapt
     }
 
 
-    private void flyToShoppingCart(View view) {
+    private void flyToShoppingCart(View view , final ViewHolder holder) {
         int[] location=new int[2];
         view.getLocationOnScreen(location);
         //获取目标位置
@@ -212,8 +212,11 @@ public class StickyAdapter extends BaseAdapter implements StickyListHeadersAdapt
             container = (FrameLayout) UiUtils.getContainder(view,R.id.seller_detail_container);
         }
         container.findViewById(R.id.cart).getLocationOnScreen(targetLocation);
+        location[1]-=UiUtils.STATUE_BAR_HEIGHT;
+        targetLocation[1]-=UiUtils.STATUE_BAR_HEIGHT;
+
         final ImageView iv=getImageView(location,view);
-        container.addView(iv);
+        container.addView(iv, view.getWidth(), view.getHeight());
         Animation animation= utils.AnimationUtils.getAddAnimation(targetLocation,location);
         iv.startAnimation(animation);
         animation.setAnimationListener(new Animation.AnimationListener() {
@@ -225,6 +228,8 @@ public class StickyAdapter extends BaseAdapter implements StickyListHeadersAdapt
             @Override
             public void onAnimationEnd(Animation animation) {
                     container.removeView(iv);
+                    holder.iv_ade.setClickable(true);
+
 
             }
 
@@ -238,8 +243,8 @@ public class StickyAdapter extends BaseAdapter implements StickyListHeadersAdapt
     private ImageView getImageView(int[] location, View view) {
         ImageView imageView = new ImageButton(mContext);
         imageView.setX(location[0]);
-        imageView.setY(location[1]-70);
-        imageView.setLayoutParams(new ViewGroup.LayoutParams(70,70));
+        imageView.setY(location[1]);
+        imageView.setLayoutParams(new ViewGroup.LayoutParams(view.getWidth(),view.getHeight()));
         imageView.setBackgroundResource(R.mipmap.food_button_add);
         return imageView;
     }
@@ -270,15 +275,6 @@ public class StickyAdapter extends BaseAdapter implements StickyListHeadersAdapt
                 viewHolder.tvCount.setVisibility(View.INVISIBLE);
             }
         }
-//        else{
-//            goodsInfo.count = num;
-//
-//            viewHolder.tvCount.setText(num+"");
-//            Integer totalNum = ShoppingCartManager.getInstance().getTotalNum();
-//            if (totalNum<=0){
-//
-//            }
-//        }
 
     }
 
@@ -315,6 +311,7 @@ public class StickyAdapter extends BaseAdapter implements StickyListHeadersAdapt
             this.tv_num = (TextView) view.findViewById(R.id.tv_money);
             this.iv_ade = (ImageView) view.findViewById(R.id.ib_add);
             this.tvCount = (TextView) view.findViewById(R.id.tv_money);
+
 
         }
     }

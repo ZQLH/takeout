@@ -1,5 +1,6 @@
 package ui.activity;
 
+import android.graphics.Rect;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.design.widget.TabLayout;
@@ -17,6 +18,7 @@ import ui.adapter.MyPagerAdapter;
 import ui.fragment.CommentFragment;
 import ui.fragment.GoodsFragment;
 import ui.fragment.SellersFragment;
+import utils.UiUtils;
 
 /**
  * Created by lala on 2017/7/23.
@@ -34,17 +36,27 @@ public class BusinessActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_seller_detail);
         extras = this.getIntent().getExtras();
+        int a = extras.getInt("sellerId");
         initToolBar();
-        TabLayout tabLayout= (TabLayout) findViewById(R.id.tabs);
-        ViewPager viewPager= (ViewPager) findViewById(R.id.vp);
+        TabLayout tabLayout = (TabLayout) findViewById(R.id.tabs);
+        ViewPager viewPager = (ViewPager) findViewById(R.id.vp);
         fragments = new ArrayList<>();
-        fragments.add(setTitle(new GoodsFragment(),"商品"));
-        fragments.add(setTitle(new CommentFragment(),"评价"));
-        fragments.add(setTitle(new SellersFragment(),"商家"));
-        MyPagerAdapter adapter=new MyPagerAdapter(getSupportFragmentManager(),fragments);
+        fragments.add(setTitle(new GoodsFragment(), "商品"));
+        fragments.add(setTitle(new CommentFragment(), "评价"));
+        fragments.add(setTitle(new SellersFragment(), "商家"));
+        MyPagerAdapter adapter = new MyPagerAdapter(getSupportFragmentManager(), fragments);
         viewPager.setAdapter(adapter);
         tabLayout.setupWithViewPager(viewPager);
 
+    }
+
+    @Override
+    public void onWindowFocusChanged(boolean hasFocus) {
+        super.onWindowFocusChanged(hasFocus);
+        Rect outRect =new Rect();
+        this.getWindow().getDecorView().getWindowVisibleDisplayFrame(outRect);
+        int statusBarHeight=outRect.top;
+        UiUtils.STATUE_BAR_HEIGHT=statusBarHeight;
     }
 
     private Fragment setTitle(Fragment fragment, String title) {
@@ -59,6 +71,7 @@ public class BusinessActivity extends AppCompatActivity {
         sellerId = extras.getInt("sellerId");
         sellerName = extras.getString("sellerName");
         toolbar.setTitle(sellerName);
+        //replace actionBar
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         toolbar.setNavigationOnClickListener(new View.OnClickListener() {

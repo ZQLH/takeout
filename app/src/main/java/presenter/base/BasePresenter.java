@@ -2,6 +2,8 @@ package presenter.base;
 
 import android.util.Log;
 
+import java.sql.SQLException;
+
 import model.dao.bean.DBHelper;
 
 import model.net.bean.ResponseInfo;
@@ -28,7 +30,7 @@ public abstract class BasePresenter {
         .create()).build();
         //retrofit需要创建ResponseInfoAPI
         responseInfoAPI = retrofit.create(ResponseInfoAPI.class);
-        helper=DBHelper.getInstance(MyApplication.context);
+        helper=DBHelper.getInstance();
     }
 
 
@@ -41,7 +43,11 @@ public abstract class BasePresenter {
                 ResponseInfo info = response.body();
                 if("0".equals(info.code)){
                     // 走子类重写的方法
-                    parserData(info.data);
+                    try {
+                        parserData(info.data);
+                    } catch (SQLException e) {
+                        e.printStackTrace();
+                    }
                 }else{
                     // 服务器端处理成功，返回错误提示，该信息需要展示给用户
                     // 依据code值获取到失败的数据
@@ -66,5 +72,5 @@ public abstract class BasePresenter {
      * 解析服务器回复数据
      * @param data
      */
-    protected abstract void parserData(String data);
+    protected abstract void parserData(String data) throws SQLException;
 }

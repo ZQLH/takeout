@@ -11,12 +11,14 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.example.lala.heimawaimaizhunbei.R;
-import com.j256.ormlite.stmt.query.In;
+import com.squareup.picasso.Picasso;
 
 import butterknife.ButterKnife;
 import butterknife.InjectView;
 import butterknife.OnClick;
+import model.MyApplication;
 import ui.activity.LoginActivity;
+import utils.CircleTransform;
 
 /**
  * Created by lala on 2017/7/21.
@@ -37,13 +39,37 @@ public class MeFragment extends BaseFragment {
     LinearLayout llUserinfo;
     @InjectView(R.id.address)
     ImageView address;
+    @InjectView(R.id.imageView)
+    ImageView imageView;
 
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_user, container, false);
         ButterKnife.inject(this, view);
+        tvUserSetting.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                MyApplication.USERID=0;
+                MyApplication.phone="";
+                login.setVisibility(View.VISIBLE);
+                llUserinfo.setVisibility(View.INVISIBLE);
+                imageView.setImageResource(R.mipmap.user_center_default_avatar);
+            }
+        });
         return view;
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        if (MyApplication.USERID != 0) {
+            login.setVisibility(View.INVISIBLE);
+            llUserinfo.setVisibility(View.VISIBLE);
+            username.setText("小黑");
+            phone.setText(MyApplication.phone);
+            Picasso.with(getActivity()).load(R.drawable.beaut).transform(new CircleTransform()).into(imageView);
+        }
     }
 
     @Override
@@ -57,9 +83,9 @@ public class MeFragment extends BaseFragment {
         ButterKnife.reset(this);
     }
 
-    @OnClick(R.id.ll_userinfo)
+    @OnClick(R.id.login)
     public void onViewClicked() {
-        Intent intent=new Intent(this.getActivity(), LoginActivity.class);
+        Intent intent = new Intent(this.getActivity(), LoginActivity.class);
         this.getActivity().startActivity(intent);
     }
 }

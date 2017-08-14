@@ -21,8 +21,10 @@ import java.util.HashMap;
 import java.util.List;
 
 import model.net.bean.Category;
+import model.net.bean.GoodsInfo;
 import model.net.bean.HomeInfo;
 import model.net.bean.Seller;
+import ui.ShoppingCartManager;
 import ui.activity.BusinessActivity;
 
 /**
@@ -39,6 +41,7 @@ public class HomeRecyclerViewAdapter extends RecyclerView.Adapter {
     private List<Category> category;
     private View title;
     private LinearLayout linearLayout;
+    private int sellerid;
 
     public HomeRecyclerViewAdapter(Context mContext) {
         this.mContext = mContext;
@@ -84,6 +87,16 @@ public class HomeRecyclerViewAdapter extends RecyclerView.Adapter {
             case TYPE_SELLER:
                 SellerHolder  sellerHolder = (SellerHolder) holder;
                 sellerHolder.setSeller(info.body.get(position -1).seller);
+
+                sellerid = (int) info.body.get(position -1).seller.id;
+                int num=ShoppingCartManager.getInstance().getGoodsSellerIdNum(sellerid);
+                if (num > 0) {
+                    sellerHolder.tv_count.setText(num + "");
+                    sellerHolder.tv_count.setVisibility(View.VISIBLE);
+                }else{
+                    sellerHolder.tv_count.setText("0");
+                    sellerHolder.tv_count.setVisibility(View.GONE);
+                }
                 break;
 
         }
@@ -129,7 +142,7 @@ public class HomeRecyclerViewAdapter extends RecyclerView.Adapter {
                 TextSliderView textSliderView=new TextSliderView(mContext);
                 textSliderView
                   .description(desc)
-                .image(url_maps.get(desc).replace("172.16.0.116","192.168.125.54"))
+                .image(url_maps.get(desc).replace("10.0.2.2","192.168.191.1"))
                 .setScaleType(BaseSliderView.ScaleType.Fit);
 
                 //因为有复用机制，所以SliderLayout对象中的轮播图还在，即还是用原来的SliderShow,而没有作为垃圾重新创建。
@@ -147,9 +160,9 @@ public class HomeRecyclerViewAdapter extends RecyclerView.Adapter {
                 TextView textView= (TextView) view.findViewById(R.id.top_tv);
                 ImageView imageView1= (ImageView) view.findViewById(R.id.bottom_iv);
                 TextView textView1= (TextView) view.findViewById(R.id.bottom_tv);
-                Picasso.with(mContext).load(category.get(i).pic.replace("172.16.0.116","192.168.125.54")).into(imageView);
+                Picasso.with(mContext).load(category.get(i).pic.replace("10.0.2.2","192.168.191.1")).into(imageView);
                 textView.setText(category.get(i).name);
-                Picasso.with(mContext).load(category.get(j).pic.replace("172.16.0.116","192.168.125.54")).into(imageView1);
+                Picasso.with(mContext).load(category.get(j).pic.replace("10.0.2.2","192.168.191.1")).into(imageView1);
                 textView1.setText(category.get(j).name);
                 linearLayout.addView(view);
             }
@@ -162,12 +175,17 @@ public class HomeRecyclerViewAdapter extends RecyclerView.Adapter {
             super(itemView);
         }
     }
+
+
     class  SellerHolder extends RecyclerView.ViewHolder{
         TextView tv;
+        TextView tv_count;
         public SellerHolder(View itemView ) {
             super(itemView);
             tv= (TextView) itemView.findViewById(R.id.tv_title);
+            tv_count= (TextView) itemView.findViewById(R.id.tv_count);
         }
+
         public void setSeller(final Seller seller){
             tv.setText(seller.getName());
             itemView.setOnClickListener(new View.OnClickListener() {
@@ -176,10 +194,8 @@ public class HomeRecyclerViewAdapter extends RecyclerView.Adapter {
                     Intent intent=new Intent(itemView.getContext(),BusinessActivity.class);
                     Bundle bundle=new Bundle();
                     bundle.putInt("sellerId", (int) seller.getId());
-                    //获取配送起的价格
-//                    bundle.putInt("startDispatchPrice",seller.getSendPrice());
-                    //获取商铺的名称
                     bundle.putString("sellerName",seller.getName());
+                    ShoppingCartManager.getInstance().name=seller.name;
                     intent.putExtras(bundle);
                     mContext.startActivity(intent);
                 }

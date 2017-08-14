@@ -27,12 +27,11 @@ public class ShoppingCartManager {
      * c)	记录并计算商品总价和商品数量
      */
 
-    public CopyOnWriteArrayList<GoodsInfo> goodsInfos = new CopyOnWriteArrayList<>();
+    public transient CopyOnWriteArrayList<GoodsInfo> goodsInfos = new CopyOnWriteArrayList<>();
     public long sellerId;
     public String name;
     public String url;
     public int sendPrice;
-
     private Integer totalNum = 0;
     private Integer money = 0;// 保存到分（分）
 
@@ -101,7 +100,7 @@ public class ShoppingCartManager {
     public Integer getMoney(){
         money=0;
         for (GoodsInfo item : goodsInfos) {
-            money += (int)(item.newPrice*100);
+            money += (int)(item.newPrice*item.count*100);
         }
         return money;
     }
@@ -125,5 +124,17 @@ public class ShoppingCartManager {
             }
         }
         return 0;
+    }
+
+    public Integer getGoodsSellerIdNum(int Sellerid) {
+        int count=0;
+        for (GoodsInfo item : goodsInfos)
+        {
+            if (Sellerid == item.sellerId){
+                count+=item.count;
+
+            }
+        }
+        return count;
     }
 }

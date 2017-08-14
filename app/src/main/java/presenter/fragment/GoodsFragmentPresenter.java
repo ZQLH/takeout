@@ -6,18 +6,17 @@ import java.util.ArrayList;
 import model.net.bean.GoodsTypeInfo;
 import model.net.bean.ResponseInfo;
 import presenter.base.BasePresenter;
-import presenter.base.MyApplication;
 import retrofit2.Call;
 import ui.activity.BusinessActivity;
-import ui.fragment.GoodsFragment;
+import ui.view.IView;
 
 /**
  * Created by lala on 2017/7/24.
  */
 
 public class GoodsFragmentPresenter extends BasePresenter {
-    GoodsFragment fragment;
-    public GoodsFragmentPresenter(GoodsFragment fragment) {
+    IView fragment;
+    public GoodsFragmentPresenter(IView fragment) {
         this.fragment = fragment;
     }
     public  void getData(){
@@ -40,7 +39,6 @@ public class GoodsFragmentPresenter extends BasePresenter {
 
         ArrayList<GoodsTypeInfo> info=gson.fromJson(data,new TypeToken<ArrayList<GoodsTypeInfo>>(){}.getType());
         //此时设配器就得到了HomeInfo数据，即
-        fragment.getAdapter().setData(info);
-        fragment.getAdapter2().setData(info);
+        fragment.success(info);
     }
 }

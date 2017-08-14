@@ -16,29 +16,26 @@ import android.widget.TextView;
 
 import com.example.lala.heimawaimaizhunbei.R;
 
-import javax.inject.Inject;
+import java.util.ArrayList;
 
 import butterknife.ButterKnife;
 import butterknife.InjectView;
-import dragger.component.fragment.DaggerGoodsFragmentComponent;
-import dragger.module.fragment.GoodsFragmentPresenterModule;
 import model.net.bean.GoodsInfo;
 import model.net.bean.GoodsTypeInfo;
-import presenter.fragment.GoodsFragmentPresenter;
 import se.emilsjolander.stickylistheaders.StickyListHeadersListView;
 import ui.ShoppingCartManager;
 import ui.activity.CartActivity;
 import ui.adapter.MyAdapter;
 import ui.adapter.StickyAdapter;
+import ui.view.IView;
 import utils.UiUtils;
 
 /**
  * Created by lala on 2017/7/24.
  */
 
-public class GoodsFragment extends BaseFragment implements AdapterView.OnItemClickListener, AbsListView.OnScrollListener {
-    @Inject
-    public GoodsFragmentPresenter presenter;
+public class GoodsFragment extends BaseFragment implements AdapterView.OnItemClickListener, AbsListView.OnScrollListener,IView{
+
     @InjectView(R.id.shl)
     StickyListHeadersListView shl;
     @InjectView(R.id.lv)
@@ -53,7 +50,6 @@ public class GoodsFragment extends BaseFragment implements AdapterView.OnItemCli
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        DaggerGoodsFragmentComponent.builder().goodsFragmentPresenterModule(new GoodsFragmentPresenterModule(this)).build().in(this);
     }
 
     @Nullable
@@ -91,10 +87,11 @@ public class GoodsFragment extends BaseFragment implements AdapterView.OnItemCli
     @Override
     public void onResume() {
         super.onResume();
-        presenter.getData();
+        GoodsPresenter.getData();
         listView.setAdapter(adapter);
         shl.setAdapter(stickyAdapter);
         listView.setOnItemClickListener(this);
+        //设置滚动监听
         shl.setOnScrollListener(this);
     }
 
@@ -112,6 +109,12 @@ public class GoodsFragment extends BaseFragment implements AdapterView.OnItemCli
         ButterKnife.reset(this);
     }
 
+    @Override
+    public void success(Object o) {
+        getAdapter().setData((ArrayList<GoodsTypeInfo>) o);
+        getAdapter2().setData((ArrayList<GoodsTypeInfo>) o);
+    }
+
     public void failed(String msg) {
 
     }
@@ -122,19 +125,28 @@ public class GoodsFragment extends BaseFragment implements AdapterView.OnItemCli
         GoodsTypeInfo head = adapter.data.get(position);
         shl.setSelection(head.groupFirstIndex);
         shl.smoothScrollToPosition(head.groupFirstIndex);
+        isScroll=false;
 
     }
 
     @Override
     public void onScrollStateChanged(AbsListView view, int scrollState) {
+        //该方法被触发，则是用户在滚动粘性控件
+        isScroll=true;
+
     }
+    private boolean isScroll=false;
 
     @Override
     public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount, int totalItemCount) {
-        if (stickyAdapter.data.size() > 0) {
-            GoodsInfo data = stickyAdapter.data.get(firstVisibleItem);
-            adapter.setSelectedPosition(data.headIndex);
-            listView.smoothScrollToPosition(data.headIndex);
+        //可能是点击左边的条目，导致右边的滚动，通过布尔值来进行筛选
+        if (isScroll){
+            if (stickyAdapter.data.size() > 0) {
+                GoodsInfo data = stickyAdapter.data.get(firstVisibleItem);
+                adapter.setSelectedPosition(data.headIndex);
+                listView.smoothScrollToPosition(data.headIndex);
+        }
+
         }
     }
 

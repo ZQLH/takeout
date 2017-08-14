@@ -105,7 +105,7 @@
                     android:clickable="false"
                     android:ellipsize="end"
                     android:focusable="false"
-                    android:maxLines="1"
+                    android:maxLines="3"
                     android:text="黑马程序员 先生 185****7311 中关村"
                     android:textColor="#fd9b9999"
                     android:textSize="13sp" />
@@ -160,9 +160,7 @@
                     android:layout_marginLeft="20dp"
                     android:orientation="vertical"
                     android:paddingBottom="20dp">
-
                 </LinearLayout>
-
             </LinearLayout>
 
             <View

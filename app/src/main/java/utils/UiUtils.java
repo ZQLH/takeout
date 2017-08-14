@@ -8,7 +8,7 @@ import android.view.ViewGroup;
  */
 
 public class UiUtils {
-    public static int STATUE_BAR_HEIGHT=0;// 记录装填栏的高度
+    public static int STATUE_BAR_HEIGHT=0;// 记录装态栏的高度
 
     /**
      * 依据Id查询指定控件的父控件

@@ -18,5 +18,6 @@ public class GoodsInfo {
     public int headId;// 进行分组操作，同组数据该字段值相同
     public int headIndex;  // 当前条目对应头数据所在集合的下标
     public int count;// 用于购物数量统计
+    public int sellerId;
 
 }

@@ -22,7 +22,7 @@ import com.squareup.picasso.Picasso;
 import butterknife.ButterKnife;
 import butterknife.InjectView;
 import model.net.bean.GoodsInfo;
-import presenter.base.MyApplication;
+import model.MyApplication;
 import ui.ShoppingCartManager;
 import ui.fragment.GoodsFragment;
 import utils.NumberFormatUtils;
@@ -45,7 +45,6 @@ public class CartActivity extends AppCompatActivity {
     RelativeLayout bottom;
     @InjectView(R.id.cart_rv)
     RecyclerView cartRv;
-    public  float money=0;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -59,7 +58,7 @@ public class CartActivity extends AppCompatActivity {
         cartRv.setAdapter(adapter);
         cartRv.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false));
         cartRv.addItemDecoration(new RecycleViewDivider(this, LinearLayoutManager.HORIZONTAL, 1, Color.BLACK));
-        tvMoney.setText(NumberFormatUtils.formatDigits(ShoppingCartManager.getInstance().getMoney()));
+        tvMoney.setText(NumberFormatUtils.formatDigits(ShoppingCartManager.getInstance().getMoney()/100.0));
         button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -99,9 +98,11 @@ public class CartActivity extends AppCompatActivity {
         }
 
         @Override
-        public int getItemCount() {
+        public int getItemCount()
+        {
             return ShoppingCartManager.getInstance().goodsInfos.size();
         }
+
 
 
         class ViewHolder extends RecyclerView.ViewHolder{
@@ -113,21 +114,15 @@ public class CartActivity extends AppCompatActivity {
             TextView itemTvPrice;
             @InjectView(R.id.item_tv_num)
             TextView itemTvNum;
-            private GoodsInfo data;
-
             ViewHolder(View view) {
                 super(view);
                 ButterKnife.inject(this, view);
             }
             public void setData(GoodsInfo data){
-                this.data=data;
-                Picasso.with(MyApplication.context).load(data.icon).into(itemIv);
+                Picasso.with(MyApplication.context).load(data.icon.replace("172.16.0.116","47.94.91.212")).into(itemIv);
                 itemTvName.setText(data.name);
                 itemTvPrice.setText(NumberFormatUtils.formatDigits(data.newPrice));
                 itemTvNum.setText(data.count+"");
-                money+=(data.newPrice*data.count);
-                tvMoney.setText(money+"");
-
             }
         }
     }
